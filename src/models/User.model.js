@@ -1,6 +1,9 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../database.js'; // Ajusta la ruta según la ubicación de tu archivo database.js
-import Role from './Role.model.js'; // Ajusta la ruta según la ubicación de tu archivo Role.model.js
+import Role from './Roles.model.js'; // Ajusta la ruta según la ubicación de tu archivo Role.model.js
+
+import bcrypt from 'bcryptjs';
+
 
 const User = sequelize.define('User', {
   username: {
@@ -24,8 +27,32 @@ const User = sequelize.define('User', {
   }
 }, {
   timestamps: true,
-  tableName: 'User'
+  tableName: 'User',
+  hooks: {
+    beforeCreate: async (user) => {
+      if (user.password) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(user.password, salt);
+      }
+    },
+    beforeUpdate: async (user) => {
+      if (user.password) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(user.password, salt);
+      }
+    }
+  }
 });
+
+// Métodos estáticos
+User.encryptPassword = async (password) => {
+  const salt = await bcrypt.genSalt(10);
+  return await bcrypt.hash(password, salt);
+};
+
+User.comparePassword = async (password, receivedPassword) => {
+  return await bcrypt.compare(password, receivedPassword);
+};
 
 // Definir la relación uno a muchos entre User y Role
 Role.hasMany(User, { foreignKey: 'roleId' });

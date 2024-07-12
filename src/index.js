@@ -2,6 +2,7 @@ import express from 'express';
 import morgan from 'morgan';
 import sequelize from './database.js'; // Asegúrate de que la ruta es correcta
 import publicationsRoutes from './routes/publications.routes.js';
+import authRoutes from './routes/auth.routes.js';
 
 const app = express();
 
@@ -11,7 +12,8 @@ app.use(express.urlencoded({ extended: true })); // Para poder parsear formulari
 app.use(express.static('public'));
 
 // Usar rutas
-app.use('/publications', publicationsRoutes);
+app.use('/api/publications', publicationsRoutes);
+app.use('/api/auth', authRoutes);
 
 // Ruta de bienvenida
 app.get('/', (req, res) => {
